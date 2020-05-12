@@ -1,0 +1,151 @@
+---
+title: "Exploratory Data Analysis"
+description: ''
+date: ' '
+tags: []
+featured_image: 'images/spotify1.png'
+---
+
+
+
+<p>We began our exploratory data analysis by analyzing trends in the variables. You can view what each variable is and what they’re defined as on our “Data” page.</p>
+<p>The key questions we had really revolved around one main one: “What makes a song successful enough to make it be in the top 100 songs of 2018?” As you’ll see, this question branched off into many others, like:</p>
+<ul>
+<li><p>“Which of the variables are most correlated to success?”</p></li>
+<li><p>“Which of the variables correlated to each other?”</p></li>
+<li><p>“Which variables can be used to predict other variables?”</p></li>
+<li><p>“What makes a song the most successful in the top 2018 songs?”</p></li>
+</ul>
+<p>and finally,</p>
+<ul>
+<li>“How has success and variables changed when compared to 2017? How have music trends changed?”</li>
+</ul>
+<div id="a-look-at-the-variables-independently" class="section level1">
+<h1>A Look at the Variables Independently</h1>
+<p>We felt it was important to get a high-level overview of the general trends in our data. What makes a song successful and on the top 100 songs of 2018? Although it’s easy reduce music to feelings and vibes, there’s a lot of math and structure behind what makes a song successful, as we found out.</p>
+<p>The first variable we looked into was speechiness. When you think of a popular song, everyone knows the words. Surely, speechier songs are more popular, right? Poeple love something they can sing along to. However, when we plotted speechiness against Rank, we found that ## the least speechy songs were actually most common of the top 100 songs, and that the top 10 songs all were in the lowest range of speechiness compared to lower ranking songs, which exhibited a higher variance in speechiness.
+<img src="/eda_files/figure-html/unnamed-chunk-1-1.png" width="672" /></p>
+<p>After doing a lot of plots like this and looking at a specific varible against Rank, we came to a couple conclusions:</p>
+<ul>
+<li><p>96% of songs are 4/4 (100% of the top 25).</p></li>
+<li><p>Across all 100, songs seem to hover around 3 minutes (200000 ms).</p></li>
+<li><p>Most songs (81%) were in the lower ranges of liveness, but of the 19% of the more liveness songs, 37% of those were in the top 25%.</p></li>
+<li><p>96% of songs had a value of 0.00 for instrumentalness.</p></li>
+<li><p>There’s a general trend of songs to lean towards a lower value of acousticness values.</p></li>
+<li><p>Distribution across mode
+(aka major or minor key) in songs is about 40% for minor key and 60% for major key.</p></li>
+<li><p>There’s a general trend of songs to lean towards greater loudness values (less negative).</p></li>
+<li><p>There’s a general trend of songs to lean towards greater energy values.</p></li>
+<li><p>There’s a general trend of songs to lean towards greater danceability values.</p></li>
+<li><p>There is no significant trend across key, valence or tempo.</p></li>
+</ul>
+<p>Additionally, we found that the top three artists who had the most songs in the dattaset were Post Malone, XXXTENTACION, and Drake. But, they all had varying keys.</p>
+<p>We made an interactive shiny app where you can pick a variable and look at the count of songs across ranges of the variable <a href="https://csblanco.shinyapps.io/danceability_slider/" class="uri">here</a>.</p>
+</div>
+<div id="a-look-at-the-variables-concurrently" class="section level1">
+<h1>A Look at the Variables Concurrently</h1>
+<p>After these findings, we felt it important to add a second dimension to our analysis to better understand how the variables relate. For example, there was no significant trend when looking at the distribution of songs across the different key signatures. So, in order to better understand key, we decided to explore how it related to another variable: danceability.</p>
+<p>We found that the key with the highest mean danceability is C#, and the key with the lowest mean danceability is F#.</p>
+<p><img src="/eda_files/figure-html/p2-1.png" width="672" /></p>
+<p>From comparing two variables, we found some trends:</p>
+<ul>
+<li><p>Danceability decreased with increased speechiness.</p></li>
+<li><p>Songs with an energy value between the ranges of 0.4 and 0.6 were the most danceable.</p></li>
+<li><p>If a song’s acousticness surpassed 0.5, its danceability decreased.</p></li>
+<li><p>If a song’s tempo surpassed 150, its danceability decreased.</p></li>
+<li><p>For every level of energy, energy’s relationship with danceability appears to be the opposite for the two modes (major = 1 or minor = 0) of songs:</p></li>
+</ul>
+<pre><code>## `geom_smooth()` using method = &#39;loess&#39; and formula &#39;y ~ x&#39;</code></pre>
+<p><img src="/eda_files/figure-html/unnamed-chunk-2-1.png" width="672" />
+We can see above that for songs with an energy score below 0.4, there appears to be a positive association between energy and danceability for both keys. Yet, bwtween the 0.6 and 0.7 threshold, the trend continues for songs written in the minor key but inverts for songd writen in the major key. Past the energy level of 0.7, songs written in a minor key seem to exhibit a slightly negative relationship between energy and danceability, while songs in a major key seem to return to a positive association.</p>
+<p>This was surprising and inspired us to delve deeper on two variables: danceability and energy. We wanted to predict both via linear modeling to truly be able to understand the relationships all variables have on danceability and energy.</p>
+</div>
+<div id="linear-modeling-for-danceability" class="section level1">
+<h1>Linear Modeling for Danceability</h1>
+<p>We used the method of subset selection using 9 quantitative, continuous variables: energy, key, loudness, speechiness, acousticness, liveness, valence, tempo, and rank. Out of the computed models, we chose the model with the highest R squared value (0.338), to denote the highest linearity. The highest R squared value was our metric of choice because it accounts for overfitting by penalizing the value for having more parameters. Since the value was only 0.338, that suggests that even a model with the highest possible R squared value doesn’t really explain most of the variability in the danceabiity metric based off of these variables.</p>
+<pre><code>## Subset selection object
+## Call: regsubsets.formula(danceability ~ energy + key + loudness + speechiness + 
+##     acousticness + liveness + valence + tempo + Rank, data = top2018_2)
+## 9 Variables  (and intercept)
+##              Forced in Forced out
+## energy           FALSE      FALSE
+## key              FALSE      FALSE
+## loudness         FALSE      FALSE
+## speechiness      FALSE      FALSE
+## acousticness     FALSE      FALSE
+## liveness         FALSE      FALSE
+## valence          FALSE      FALSE
+## tempo            FALSE      FALSE
+## Rank             FALSE      FALSE
+## 1 subsets of each size up to 8
+## Selection Algorithm: exhaustive
+##          energy key loudness speechiness acousticness liveness valence tempo
+## 1  ( 1 ) &quot; &quot;    &quot; &quot; &quot; &quot;      &quot; &quot;         &quot; &quot;          &quot; &quot;      &quot;*&quot;     &quot; &quot;  
+## 2  ( 1 ) &quot;*&quot;    &quot; &quot; &quot; &quot;      &quot; &quot;         &quot; &quot;          &quot; &quot;      &quot;*&quot;     &quot; &quot;  
+## 3  ( 1 ) &quot;*&quot;    &quot; &quot; &quot; &quot;      &quot; &quot;         &quot;*&quot;          &quot; &quot;      &quot;*&quot;     &quot; &quot;  
+## 4  ( 1 ) &quot;*&quot;    &quot; &quot; &quot; &quot;      &quot;*&quot;         &quot;*&quot;          &quot; &quot;      &quot;*&quot;     &quot; &quot;  
+## 5  ( 1 ) &quot;*&quot;    &quot; &quot; &quot; &quot;      &quot;*&quot;         &quot;*&quot;          &quot; &quot;      &quot;*&quot;     &quot;*&quot;  
+## 6  ( 1 ) &quot;*&quot;    &quot; &quot; &quot; &quot;      &quot;*&quot;         &quot;*&quot;          &quot; &quot;      &quot;*&quot;     &quot;*&quot;  
+## 7  ( 1 ) &quot;*&quot;    &quot;*&quot; &quot; &quot;      &quot;*&quot;         &quot;*&quot;          &quot; &quot;      &quot;*&quot;     &quot;*&quot;  
+## 8  ( 1 ) &quot;*&quot;    &quot;*&quot; &quot; &quot;      &quot;*&quot;         &quot;*&quot;          &quot;*&quot;      &quot;*&quot;     &quot;*&quot;  
+##          Rank
+## 1  ( 1 ) &quot; &quot; 
+## 2  ( 1 ) &quot; &quot; 
+## 3  ( 1 ) &quot; &quot; 
+## 4  ( 1 ) &quot; &quot; 
+## 5  ( 1 ) &quot; &quot; 
+## 6  ( 1 ) &quot;*&quot; 
+## 7  ( 1 ) &quot;*&quot; 
+## 8  ( 1 ) &quot;*&quot;</code></pre>
+<pre><code>## [1] 0.1628197 0.2178993 0.2825124 0.3180745 0.3361698 0.3379999 0.3350481
+## [8] 0.3327620</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = danceability ~ energy + speechiness + acousticness + 
+##     valence + tempo + Rank, data = top2018_2)
+## 
+## Residuals:
+##      Min       1Q   Median       3Q      Max 
+## -0.33539 -0.06502  0.01188  0.06826  0.21446 
+## 
+## Coefficients:
+##                Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)   0.8734834  0.0788765  11.074  &lt; 2e-16 ***
+## energy       -0.3432563  0.0903267  -3.800 0.000258 ***
+## speechiness   0.2806009  0.1041489   2.694 0.008371 ** 
+## acousticness -0.1666698  0.0550927  -3.025 0.003212 ** 
+## valence       0.3464998  0.0580147   5.973 4.24e-08 ***
+## tempo        -0.0006422  0.0003915  -1.640 0.104319    
+## Rank         -0.0004250  0.0003787  -1.122 0.264566    
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 0.1066 on 93 degrees of freedom
+## Multiple R-squared:  0.3781, Adjusted R-squared:  0.338 
+## F-statistic: 9.424 on 6 and 93 DF,  p-value: 4.508e-08</code></pre>
+<p>So, we looked at other methods, like forward accumulation and backwards eliminiation.</p>
+<p>For forward accumulation, we produced a model that included valence, energy, acousticness, speechiness, and tempo. We got a model with a slightly lower R squared of 0.3362.</p>
+<p>Backwards elimination removes variables from a “full” model until only significant ones remain. For backwards elimination, we produced a model that included energy, speechiness, acousticness, valence, and tempo. We got a model with the the same lowered R squared value as the forward accumulation yielded: 0.3362.</p>
+<p>These two models produced the same model, which is somewhat rare. That suggests that there could be some interesting further analysis into factoring in the qualitative variables, to see if they account more for the variability within Danceability.</p>
+</div>
+<div id="linear-modeling-for-energy" class="section level1">
+<h1>Linear Modeling for Energy</h1>
+<p>Due to the lack of success with predicting Danceability using the previously mentioned variables, we figured doing some more digging into the variables themselves would lead to a better multiple linear regression model.</p>
+<p>First, we wanted to examine the extent of correlation between the factors involved in the dataset which are used in determining the overall performance and popularity of the respective songs and artists. We made a correlation matrix:</p>
+<pre><code>## corrplot 0.84 loaded</code></pre>
+<p><img src="/eda_files/figure-html/unnamed-chunk-4-1.png" width="672" /></p>
+<p>We found that there are no significant correlations between the different factors–mostly. There are a few instances, most notably the strong positive relation between loudness and energy.</p>
+<p>In fact, when plotting loudness against energy, there’s a strong linear relationship between the two.</p>
+<pre><code>## `geom_smooth()` using method = &#39;loess&#39; and formula &#39;y ~ x&#39;</code></pre>
+<p><img src="/eda_files/figure-html/unnamed-chunk-5-1.png" width="672" /></p>
+<p>With this in mind, we decided to use loudness to predict energy in the linear regression model, along with danceability and acousticness. It was much more sucessful than the modeling done for danceability, and yielded a higher R squared value: 0.8162.</p>
+</div>
+<div id="linear-modeling-for-rank-in-2018-and-2017" class="section level1">
+<h1>Linear Modeling for Rank in 2018 and 2017</h1>
+<p>Now that we had seen that linear modeling could yield significant results, we wanted to use subset selection to predict ranking for each year. The ultimate question we wanted to answer was “what makes a song the most successful in the top 2018 songs?”</p>
+<p>We also wanted to measure how modeling prediction changed between 2017 and 2018. If they were similar or negligibly different, we could extrapolate and predict the rank of a song from 2019.</p>
+<p>We used the scalar variables as our independent variables.</p>
+<p>For 2017, the R squared values were incredibly low (0.03- 0.06). We couldn’t confidently correlate any combination of the scalar independent variables with the Rank of a song.</p>
+<p>For 2018, the R squared values were still pretty low (0.05-0.10), but they were a little higher on average han the values from 2017.</p>
+<p>Unfortunately, these R squared values are still too low to predict Rank reliably. This suggests that the existing variables we’ve looked into aren’t responsible for how successful a song is–or, that songs’ popularity just isn’t that predictible and there isn’t just one type of song that is consistently popular.</p>
+</div>

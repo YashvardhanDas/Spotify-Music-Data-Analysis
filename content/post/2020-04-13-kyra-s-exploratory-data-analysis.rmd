@@ -1,0 +1,47 @@
+---
+title: Kyras Exploratory Data Analysis
+author: Kyra Dubinsky
+date: '2020-04-13'
+slug: kyra-s-exploratory-data-analysis
+categories: []
+tags: []
+description: 'Kyras Exploratory Data Analysis '
+featured_image: ''
+---
+
+My group and I wanted to look further into the Top Spotify Tracks of 2018 from this dataset: https://www.kaggle.com/nadintamer/top-spotify-tracks-of-2018.
+
+Some of the more important questions centered around what made a song a successful song in 2018. While we could see simple correlations between a variable like speechiness and presence on the top 2018 spotify tracks (of the tracks on the top 2018 spotify tracks, the least speechy ones were most common):
+
+```{r, echo = FALSE}
+library(tidyverse)
+suppressMessages(source(here::here("load_and_clean_data.R")))
+top2018 %>% ggplot(aes(x = speechiness, y = id)) + geom_point(aes(color = speechiness)) 
+```
+Comparing this to 2017, we see the exact same trend: 
+```{r p1, echo = FALSE}
+top2017 %>% ggplot(aes(x = speechiness, y = id)) + geom_point(aes(color = speechiness)) 
+```
+It seemed more important to focus on relationships and trends between varbiables like the effect of speechiness on danceability: 
+
+```{r p2, echo = FALSE}
+top2018 %>% ggplot(aes(x = speechiness, y = danceability)) + geom_point(aes(color = speechiness)) 
+```
+Again, this trend was common in 2017:
+```{r p3, echo = FALSE}
+top2017 %>% ggplot(aes(x = speechiness, y = danceability)) + geom_point(aes(color = speechiness)) 
+```
+Although there seems to be little trend in the range of 0.05-0.15, this range has many more songs in the high danceability range (0.8+) than songs with a speechiness range of 0.2-0.3, and even fewer songs in the high danceability range exist when their speechiness is more than 0.4. Overall, not only does a song's danceability decrease with increased speechiness, but there's a notable decrease in song that made the top 2018 on spotify as speechiness increases. The less speechiness, the more likely the song was on the top 2018 list at all. 
+
+I also wanted to look further into defining danceability. What did danceability mean in terms of other musical factors? Obviously, from the plot above, songs that are highly danceable were less speechy. But what about time signature? 
+
+```{r p4, echo = FALSE}
+top2018 %>% ggplot(aes(x = danceability, y = time_signature)) + geom_point(aes(color = danceability))
+```
+This didn't really give me the information I was looking for, since 4/4 seemed to be the most common time signature by a lot. So, I couldn't regard this data in that way, but it did show something else: most songs on the top 2018 tracks were 4/4 instead of 5/4 or a waltzy 3/4.
+
+Interestingly, in 2017 there weren't any top songs with a 5/4 time signature like there was in 2018. And, there was only 1 song with a 3/4 time signature. There's more diversity in time signatures within the top songs in 2018 than there was in 2017.
+```{r p5, echo = FALSE}
+top2017 %>% ggplot(aes(x = danceability, y = time_signature)) + geom_point(aes(color = danceability))
+```
+In the future, I'd like to look more into how these trends align with today's top spotify tracks, once we get the API figured out.

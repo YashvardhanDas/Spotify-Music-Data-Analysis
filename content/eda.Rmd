@@ -1,0 +1,163 @@
+---
+title: "Exploratory Data Analysis"
+description: ''
+date: ' '
+tags: []
+featured_image: 'images/spotify1.png'
+---
+
+We began our exploratory data analysis by analyzing trends in the variables. You can view what each variable is and what they're defined as on our "Data" page.
+
+The key questions we had really revolved around one main one: "What makes a song successful enough to make it be in the top 100 songs of 2018?" As you'll see, this question branched off into many others, like:
+
+- "Which of the variables are most correlated to success?"
+
+- "Which of the variables correlated to each other?"
+
+- "Which variables can be used to predict other variables?"
+
+- "What makes a song the most successful in the top 2018 songs?"
+
+and finally,
+
+- "How has success and variables changed when compared to 2017? How have music trends changed?"
+
+# A Look at the Variables Independently
+We felt it was important to get a high-level overview of the general trends in our data. What makes a song successful and on the top 100 songs of 2018? Although it's easy reduce music to feelings and vibes, there's a lot of math and structure behind what makes a song successful, as we found out.
+
+The first variable we looked into was speechiness. When you think of a popular song, everyone knows the words. Surely, speechier songs are more popular, right? Poeple love something they can sing along to. However, when we plotted speechiness against Rank, we found that ## the least speechy songs were actually most common of the top 100 songs, and that the top 10 songs all were in the lowest range of speechiness compared to lower ranking songs, which exhibited a higher variance in speechiness.
+```{r, echo=FALSE}
+suppressMessages(library(tidyverse))
+suppressMessages(library(ggthemes))
+suppressMessages(source(here::here("load_and_clean_data.R")))
+top2018 %>% ggplot(aes(x = speechiness, y = Rank)) + geom_point(aes(color = speechiness)) + theme_clean()
+```
+
+After doing a lot of plots like this and looking at a specific varible against Rank, we came to a couple conclusions:
+
+- 96% of songs are 4/4 (100% of the top 25).
+
+- Across all 100, songs seem to hover around 3 minutes (200000 ms).
+
+- Most songs (81%) were in the lower ranges of liveness, but of the 19% of the more liveness songs, 37% of those were in the top 25%.
+
+- 96% of songs had a value of 0.00 for instrumentalness.
+
+- There's a general trend of songs to lean towards a lower value of acousticness values.
+
+- Distribution across mode 
+(aka major or minor key) in songs is about 40% for minor key and 60% for major key.
+
+- There's a general trend of songs to lean towards greater loudness values (less negative).
+
+- There's a general trend of songs to lean towards greater energy values.
+
+- There's a general trend of songs to lean towards greater danceability values.
+
+- There is no significant trend across key, valence or tempo.
+
+Additionally, we found that the top three artists who had the most songs in the dattaset were Post Malone, XXXTENTACION, and Drake. But, they all had varying keys.
+
+We made an interactive shiny app where you can pick a variable and look at the count of songs across ranges of the variable https://csblanco.shinyapps.io/danceability_slider/.
+
+# A Look at the Variables Concurrently
+
+After these findings, we felt it important to add a second dimension to our analysis to better understand how the variables relate. For example, there was no significant trend when looking at the distribution of songs across the different key signatures. So, in order to better understand key, we decided to explore how it related to another variable: danceability.
+
+We found that the key with the highest mean danceability is C#, and the key with the lowest mean danceability is F#.
+
+```{r p2, echo=FALSE}
+top2018 %>% ggplot(aes(x = key, y = danceability, group = key)) + 
+  geom_boxplot(aes(fill = key)) + theme_clean()
+```
+
+From comparing two variables, we found some trends:
+
+- Danceability decreased with increased speechiness.
+
+- Songs with an energy value between the ranges of 0.4 and 0.6 were the most danceable.
+
+- If a song's acousticness surpassed 0.5, its danceability decreased.
+
+- If a song's tempo surpassed 150, its danceability decreased. 
+
+- For every level of energy, energy's relationship with danceability appears to be the opposite for the two modes (major = 1 or minor = 0) of songs:
+
+``` {r, echo = FALSE}
+library(tidyverse)
+library(ggthemes)
+
+ggplot(top2018, aes(energy, danceability, color = as.character(mode))) + geom_point() + geom_smooth(aes(group = mode),se = FALSE)+ xlab("Energy")+ylab("Danceability") + ggtitle("The Relationship between Energy and Danceability by Mode")+ labs(color = "Mode") + theme_clean()
+```
+We can see above that for songs with an energy score below 0.4, there appears to be a positive association between energy and danceability for both keys. Yet, bwtween the 0.6 and 0.7 threshold, the trend continues for songs written in the minor key but inverts for songd writen in the major key. Past the energy level of 0.7, songs written in a minor key seem to exhibit a slightly negative relationship between energy and danceability, while songs in a major key seem to return to a positive association.
+
+This was surprising and inspired us to delve deeper on two variables: danceability and energy. We wanted to predict both via linear modeling to truly be able to understand the relationships all variables have on danceability and energy.
+
+# Linear Modeling for Danceability
+
+We used the method of subset selection using 9 quantitative, continuous variables: energy, key, loudness, speechiness, acousticness, liveness, valence, tempo, and rank. Out of the computed models, we chose the model with the highest R squared value (0.338), to denote the highest linearity. The highest R squared value was our metric of choice because it accounts for overfitting by penalizing the value for having more parameters. Since the value was only 0.338, that suggests that even a model with the highest possible R squared value doesn't really explain most of the variability in the danceabiity metric based off of these variables. 
+
+```{r, echo = FALSE}
+
+suppressMessages(source(here::here("load_and_clean_data.R")))
+
+#Finding the best model to predict danciblity, based on adjusted R squared
+
+library(leaps)
+
+reg.sub.out <- regsubsets(danceability ~ energy+ key + loudness + speechiness +acousticness  + liveness + valence + tempo + Rank , data = top2018_2)
+
+rs <- summary(reg.sub.out)
+rs
+rs$adjr2
+
+#Model 6 Has the highest adjusted R sqaured 
+
+best_mod <- lm(danceability ~ energy  + speechiness +acousticness  + valence + tempo + Rank , data = top2018_2)
+
+summary(best_mod)
+
+```
+
+So, we looked at other methods, like forward accumulation and backwards eliminiation.
+
+For forward accumulation, we produced a model that included valence, energy, acousticness, speechiness,  and tempo. We got a model with a slightly lower R squared of 0.3362.
+
+Backwards elimination removes variables from a "full" model until only significant ones remain. For backwards elimination, we produced a model that included energy, speechiness, acousticness, valence, and tempo. We got a model with the the same lowered R squared value as the forward accumulation yielded: 0.3362.
+
+These two models produced the same model, which is somewhat rare. That suggests that there could be some interesting further analysis into factoring in the qualitative variables, to see if they account more for the variability within Danceability. 
+
+# Linear Modeling for Energy
+Due to the lack of success with predicting Danceability using the previously mentioned variables, we figured doing some more digging into the variables themselves would lead to a better multiple linear regression model. 
+
+First, we wanted to examine the extent of correlation between the factors involved in the dataset which are used in determining the overall performance and popularity of the respective songs and artists. We made a correlation matrix: 
+
+```{r, echo=FALSE}
+library(corrplot)
+#Constructing the correlation matrix
+corrplot(cor(top2018_2[c(4:17)]), method="color", type = "lower", tl.col="black", addCoef.col = "black", number.cex = 0.60)
+```
+
+We found that there are no significant correlations between the different factors--mostly. There are a few instances, most notably the strong positive relation between loudness and energy.
+
+In fact, when plotting loudness against energy, there's a strong linear relationship between the two.
+
+```{r, echo=FALSE}
+ggplot(top2018, aes(x=energy, y=loudness)) + geom_point(size=2) + geom_smooth() + theme_clean()
+```
+
+With this in mind, we decided to use loudness to predict energy in the linear regression model, along with danceability and acousticness. It was much more sucessful than the modeling done for danceability, and yielded a higher R squared value: 0.8162.
+
+# Linear Modeling for Rank in 2018 and 2017
+
+Now that we had seen that linear modeling could yield significant results, we wanted to use subset selection to predict ranking for each year. The ultimate question we wanted to answer was "what makes a song the most successful in the top 2018 songs?" 
+
+We also wanted to measure how modeling prediction changed between 2017 and 2018. If they were similar or negligibly different, we could extrapolate and predict the rank of a song from 2019.
+
+We used the scalar variables as our independent variables. 
+
+For 2017, the R squared values were incredibly low (0.03- 0.06). We couldn't confidently correlate any combination of the scalar independent variables with the Rank of a song.
+
+For 2018, the R squared values were still pretty low (0.05-0.10), but they were a little higher on average han the values from 2017.
+
+Unfortunately, these R squared values are still too low to predict Rank reliably. This suggests that the existing variables we've looked into aren't responsible for how successful a song is--or, that songs' popularity just isn't that predictible and there isn't just one type of song that is consistently popular. 

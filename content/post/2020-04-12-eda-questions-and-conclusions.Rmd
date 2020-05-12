@@ -1,0 +1,30 @@
+---
+title: EDA Questions and Conclusions
+author: 'Claudia Blanco'
+date: '2020-04-12'
+slug: eda-questions-and-conclusions
+categories: []
+tags: []
+description: ''
+featured_image: ''
+---
+The variable that both I and my lab mates found most interesting in our dataset was "danceability". I wanted to first study this variable and its relationship to other variables before diving into other forms of analyses. In our group analysis, I specifically studied the correlation between danceability and key. I discovered the key with the highest mean danceability  is C sharp and the key with the lowest mean danceability is F. Below is the plot that I made from the previous EDA post.
+```{r, echo = FALSE}
+suppressMessages(source(here::here("load_and_clean_data.R")))
+```
+
+```{r p1, echo = FALSE}
+top2018 %>% ggplot(aes(x = key, y = danceability, group = key)) + 
+  geom_boxplot(aes(fill = key)) + theme_linedraw()
+```
+To further analyze the danceability variable, I decided to make plots of it against all of the other quantitative variables. This would be too many plots to show, but I will share some of the main conclusions that I drew. When comparing danceability and energy, it can be seen that on average, songs with energy between about 0.4 and 0.6 are the most danceable. When comparing danceability and acousticness, it can be seen that there is little trend until high levels of acousticness. As acousticnness surpasses about 0.5, it can be seen that a song's danceability will decrease. Similar to the comparison of danceability and acousticness, the comparison of danceability and tempo shows little correlation until tempo surpasses 150. From this point on, a song's danceability decreases as tempo increases. The group EDA post can be looked at to see the correlation between both danceabbility and rank, and danceability and speechiness. Below is a plot of danceability and tempo.
+```{r p2, echo = FALSE}
+top2018 %>% ggplot(aes(x = tempo, y = danceability)) + geom_point()+ geom_smooth(se = FALSE)
+```
+The next thing that I decided to do was break the dataset down by artist and then analyze the danceability. I first made a table with the counts of how many songs each artist had in the Top 2018 dataset. I then narrowed it down to the artists that had more than one song in the top 100 songs.
+```{r p3, echo = FALSE}
+top2018 %>% group_by(artists) %>% summarize(count = n()) %>% arrange(desc(count)) %>% slice(1:18) 
+```
+During this time, I studied the top 3 artists with the most songs; Post Malone, XXXTENTACION, and Drake. When looking at Post Malone's songs in descending order of danceability, it can be seen that his most danceabiltiy songs are all in Minor keys, in other words, the mode is 1. His most danceable songs also have high valence.  When looking at XXXTENTACION's songs in order of descending danceability, it can be seen that his most danceable songs are all in Major keys, in other words, the mode is 0, in contrast to those by Post Malone. XXXTENTACION's two least danceable songs have the highest level of acousticness of all six of his songs in the dataset. The other variables seem to have little correlation to danceability. When looking at Drake's most danceable songs in descending order of danceabilty, it can be seen that all of his songs are in Major keys, similar to XXX's most danceable songs. The speechiness of Drake's songs appears to decrease and danceability decreases. 
+
+In conclusion, I found that there is a correlation between danceability and many different variables. I would like to further explore all of these things once our group establishes how to use and work the Spotify API. 

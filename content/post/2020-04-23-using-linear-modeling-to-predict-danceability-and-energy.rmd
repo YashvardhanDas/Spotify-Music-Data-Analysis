@@ -1,0 +1,110 @@
+---
+title: "Using Linear Modeling to Predict Danceability and Energy"
+author: "Anto, Yash, Claudia, Kyra"
+date: '2020-04-23'
+description: ''
+featured_image: ''
+slug: using-linear-modeling-to-predict-danceability-and-energy
+tags: []
+categories: []
+---
+In this post, we explore the use of linear modeling to predict danceability and energy.
+
+Let's start with danceability. For the purpose of this part of the analysis, we will only focus on scalar independent variables. 
+
+Using the method of subset selection (which is selecting all possible models that can be made from combinations of our independent variables) to determine the best linear model for predicting danceability, we can see that model 6 has the highest adjusted R squared. We felt as though it was important to use this metric as an indicator of how good the model is, beacuse it accounts for overfitting by penalizing the value for having more parameters. 
+
+The independent variables in model 6 are energy, speechiness, acousticnes, valence, tempo and Rank, and its adjusted R squared value is .338. This value indicates that even the model with the highest posssible R squared value based on the variables in the data set still does not explain most of the variability in in danceability. 
+```{r, echo = FALSE}
+
+suppressMessages(source(here::here("load_and_clean_data.R")))
+
+#Finding the best model to predict danciblity, based on adjusted R squared
+
+library(leaps)
+
+reg.sub.out <- regsubsets(danceability ~ energy+ key + loudness + speechiness +acousticness  + liveness + valence + tempo + Rank , data = top2018_2)
+
+rs <- summary(reg.sub.out)
+rs
+rs$adjr2
+
+#Model 6 Has the highest adjusted R sqaured 
+
+best_mod <- lm(danceability ~ energy  + speechiness +acousticness  + valence + tempo + Rank , data = top2018_2)
+
+summary(best_mod)
+
+```
+While subset selection is one potentially useful method of model building, different methods such as forward accumulation and backwards elimination can produce different models. In this next section, we will focus on the use of these two methods and take a look the different models that they produce. Before we begin, it is important to note that we decided to use AIC penalization for each process, as oposed to BIC penalization which is harsher. 
+
+Let's start with forward accumulation. This method sequentially selects which variable to include based on their significance in the model. 
+
+As you can see by the output below, this method produces a model that includes valence, energy, accousticness, speechiness and tempo as the independent variables, and has an adjusted R squared of 0.3362.
+
+
+``` {r, echo = FALSE}
+mod.null <- lm(danceability ~ 1, data=top2018)
+
+best_mod.a <- step(mod.null, direction = "forward", scope = ~ energy+ key + loudness + speechiness +acousticness  + liveness + valence + tempo + Rank)
+
+summary(best_mod.a)
+``` 
+
+Next, we can utilize the backwards elimination method, which removes variables from a "full" model until only significant ones remain. 
+
+As you can see in the output below, this method gives a model that includes energy, speechiness, accousticness, valance and tempo, and has an adjusted R squared value of 0.3362.
+
+Incidentally, these two methods produced the same model, which is somewhat rare. Further analysis could include factoring in the qualitative variables in the data set to see if they could lead to significantly more accurate models. For now however, it seems as though subset selection produces the model with the highest adjusted R squared vlaue, and its relatively low value sugests that the quantitative variables in the dataset can not be used to predict danceability very accurately. 
+
+```{r, echo= FALSE}
+mod.max <- lm(danceability ~ energy+ key + loudness + speechiness +acousticness  + liveness + valence + tempo + Rank , data= top2018)
+
+best.mod.b <- step(mod.max)
+
+summary(best.mod.b)
+```
+
+```{r}
+suppressMessages(source(here::here("load_and_clean_data.R")))
+```
+
+We will now shift our focus to energy as our dependent variable of interest. 
+
+
+```{r p2, echo=FALSE}
+library(gridExtra)
+library(ggcorrplot)
+library(dplyr)
+library(RColorBrewer)
+library(MASS)
+library(gvlma)
+
+modelling_data <- sample(2,nrow(top2018),replace=TRUE,prob = c(0.8,0.2))
+train_data <- top2018_2[modelling_data == 1,]
+test_data <- top2018_2[modelling_data == 2,]
+```
+
+```{r p3, echo = FALSE}
+#Model creation
+mlr_model <- lm(energy ~ loudness+danceability + acousticness, data=train_data)
+gvlma(mlr_model)
+```
+
+```{r p4, echo = FALSE}
+summary(mlr_model)
+```
+
+```{r p4 ,echo=FALSE}
+predicted_values <- predict(mlr_model,newdata = test_data)
+original_values <- test_data$energy
+SSE <- sum((original_values - predicted_values) ^ 2)
+SST <- sum((original_values - mean(original_values)) ^ 2)
+r2 <- 1 - SSE/SST
+rmse <- sqrt(mean((predicted_values - original_values)^2))
+```
+
+```{r p5 ,echo=FALSE}
+r2
+```
+With the mlr model created, we have a significant r2 value while predicting the energy level using the factors of loudness, danceability & acousticness. Based on the correlation matrix constructed, this model is in tandem with the strong postive correlation between energy and loudness

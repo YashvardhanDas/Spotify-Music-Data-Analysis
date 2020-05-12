@@ -1,0 +1,20 @@
+---
+title: "Exploratory Data Analysis"
+author: "Claudia, Anto, Yash, Kyra"
+date: '2020-04-02'
+description: Preliminary data analysis
+featured_image: ''
+slug: exploratory-data-analysis
+tags: []
+categories: []
+---
+
+
+
+<p>In this blog post, we hope to give some preliminary analysis of our Top Spotify Songs of 2018 dataset.</p>
+<p>In the plot below, we are analyzing the correlation between a song’s key and danceability. It is seen that the key with the highest mean danceability is C sharp. The key with the lowest mean danceability is F sharp. Among these boxplots are a few outliers. For example, although the key of D appears to have a higher mean danceability, there is one song in this key that has a danceability lower than 0.2, making it one of the least danceable songs in the dataset.</p>
+<p><img src="/post/2020-04-02-exploratory-data-analysis_files/figure-html/p1-1.png" width="672" />
+In the plot below, we examine the relationship between rank and danceability, grouped by quartile of ranking. Initially, we antcicipated that the most popular songs (the songs in the 1-25 quarter) would have a higher average danceability than the other groups, but that does not seem to be the case. Surprisingly, the boxplot suggests that on average, songs in the lowest quarter of ranking have the highest danceability score, with the top two quarters close behind. These findings could suggest that the danceability of a song does not have a large association with how often someone listens to a song, or how much they enjoy it.</p>
+<p><img src="/post/2020-04-02-exploratory-data-analysis_files/figure-html/p2-1.png" width="672" /></p>
+<p>In the plot below we also wanted to look at the effect of speechiness on danceability. Although there seems to be little trend in the range of 0.05-0.15, this range has many more songs in the high danceability range (0.8+) than songs with a speechiness range of 0.2-0.3, and even fewer songs in the high danceability range exist when their speechiness is more than 0.4. Overall, not only does a song’s danceability decrease with increased speechiness, but there’s a notable decrease in song that made the top 2018 on spotify as speechiness increases. The less speechiness, the more likely the song was on the top 2018 list at all.</p>
+<p><img src="/post/2020-04-02-exploratory-data-analysis_files/figure-html/p3-1.png" width="672" /></p>

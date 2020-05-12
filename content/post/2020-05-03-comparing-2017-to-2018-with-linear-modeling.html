@@ -1,0 +1,93 @@
+---
+title: "Comparing 2017 to 2018 Rank Predictability with Linear Modeling"
+author: "Anto"
+date: '2020-05-03'
+description: ''
+featured_image: ''
+slug: comparing-2017-to-2018-with-linear-modeling
+tags: []
+categories: []
+---
+
+
+
+<p>In this analysis, we will compare the best linear model, using subset selection, to predict ranking for each respective year. If the best model for each respective year is the same or similar, we may be able to use that information to predict the rank of a song from 2019.</p>
+<p>Similar to our last modeling post, we will be using our scalar variables as our independent variables.</p>
+<p>Let’s start with 2017. As you can see from the output below, there none of the models generated has a remotely high adjusted R squared. This suggests that no combination of the scalar independent variables can be used to accurately predict the rank of a song.</p>
+<pre><code>## Subset selection object
+## Call: regsubsets.formula(Rank ~ energy + key + loudness + speechiness + 
+##     acousticness + liveness + valence + tempo + danceability, 
+##     data = top2017)
+## 9 Variables  (and intercept)
+##              Forced in Forced out
+## energy           FALSE      FALSE
+## key              FALSE      FALSE
+## loudness         FALSE      FALSE
+## speechiness      FALSE      FALSE
+## acousticness     FALSE      FALSE
+## liveness         FALSE      FALSE
+## valence          FALSE      FALSE
+## tempo            FALSE      FALSE
+## danceability     FALSE      FALSE
+## 1 subsets of each size up to 8
+## Selection Algorithm: exhaustive
+##          energy key loudness speechiness acousticness liveness valence tempo
+## 1  ( 1 ) &quot; &quot;    &quot;*&quot; &quot; &quot;      &quot; &quot;         &quot; &quot;          &quot; &quot;      &quot; &quot;     &quot; &quot;  
+## 2  ( 1 ) &quot; &quot;    &quot;*&quot; &quot; &quot;      &quot; &quot;         &quot; &quot;          &quot; &quot;      &quot;*&quot;     &quot; &quot;  
+## 3  ( 1 ) &quot; &quot;    &quot;*&quot; &quot; &quot;      &quot; &quot;         &quot; &quot;          &quot;*&quot;      &quot;*&quot;     &quot; &quot;  
+## 4  ( 1 ) &quot; &quot;    &quot;*&quot; &quot; &quot;      &quot; &quot;         &quot;*&quot;          &quot;*&quot;      &quot;*&quot;     &quot; &quot;  
+## 5  ( 1 ) &quot;*&quot;    &quot;*&quot; &quot;*&quot;      &quot; &quot;         &quot; &quot;          &quot;*&quot;      &quot;*&quot;     &quot; &quot;  
+## 6  ( 1 ) &quot;*&quot;    &quot;*&quot; &quot;*&quot;      &quot; &quot;         &quot; &quot;          &quot;*&quot;      &quot;*&quot;     &quot;*&quot;  
+## 7  ( 1 ) &quot;*&quot;    &quot;*&quot; &quot;*&quot;      &quot; &quot;         &quot;*&quot;          &quot;*&quot;      &quot;*&quot;     &quot;*&quot;  
+## 8  ( 1 ) &quot;*&quot;    &quot;*&quot; &quot;*&quot;      &quot;*&quot;         &quot;*&quot;          &quot;*&quot;      &quot;*&quot;     &quot;*&quot;  
+##          danceability
+## 1  ( 1 ) &quot; &quot;         
+## 2  ( 1 ) &quot; &quot;         
+## 3  ( 1 ) &quot; &quot;         
+## 4  ( 1 ) &quot; &quot;         
+## 5  ( 1 ) &quot; &quot;         
+## 6  ( 1 ) &quot; &quot;         
+## 7  ( 1 ) &quot; &quot;         
+## 8  ( 1 ) &quot; &quot;</code></pre>
+<pre><code>## [1] 0.03984346 0.06291847 0.06507866 0.05785795 0.05300754 0.04689279 0.03960727
+## [8] 0.02997141</code></pre>
+<p>Now, let’s see if we run into the same problem when we model using the same variables and the data from 2018.</p>
+<p>As you can see from the output below, the adjusted R squared values for each model are still very low, but they also appear to be slightly higher on average than the values from the 2017 data. Further analysis could include performing the same method of model selection on 2019 data, and seeing if the adjusted R squared values continue to increase.</p>
+<p>While we by no means can prove anything definitively from this analysis, the fact that we cannot use the data to accurately predict rank could suggest that there may not be “one type” of song that is consistently popular.</p>
+<pre><code>## Subset selection object
+## Call: regsubsets.formula(Rank ~ energy + key + loudness + speechiness + 
+##     acousticness + liveness + valence + tempo + danceability, 
+##     data = top2018)
+## 9 Variables  (and intercept)
+##              Forced in Forced out
+## energy           FALSE      FALSE
+## key              FALSE      FALSE
+## loudness         FALSE      FALSE
+## speechiness      FALSE      FALSE
+## acousticness     FALSE      FALSE
+## liveness         FALSE      FALSE
+## valence          FALSE      FALSE
+## tempo            FALSE      FALSE
+## danceability     FALSE      FALSE
+## 1 subsets of each size up to 8
+## Selection Algorithm: exhaustive
+##          energy key loudness speechiness acousticness liveness valence tempo
+## 1  ( 1 ) &quot; &quot;    &quot; &quot; &quot; &quot;      &quot; &quot;         &quot; &quot;          &quot;*&quot;      &quot; &quot;     &quot; &quot;  
+## 2  ( 1 ) &quot; &quot;    &quot;*&quot; &quot; &quot;      &quot; &quot;         &quot; &quot;          &quot;*&quot;      &quot; &quot;     &quot; &quot;  
+## 3  ( 1 ) &quot; &quot;    &quot;*&quot; &quot;*&quot;      &quot; &quot;         &quot; &quot;          &quot;*&quot;      &quot; &quot;     &quot; &quot;  
+## 4  ( 1 ) &quot; &quot;    &quot;*&quot; &quot;*&quot;      &quot; &quot;         &quot; &quot;          &quot;*&quot;      &quot; &quot;     &quot;*&quot;  
+## 5  ( 1 ) &quot; &quot;    &quot;*&quot; &quot;*&quot;      &quot; &quot;         &quot; &quot;          &quot;*&quot;      &quot;*&quot;     &quot; &quot;  
+## 6  ( 1 ) &quot; &quot;    &quot;*&quot; &quot;*&quot;      &quot; &quot;         &quot; &quot;          &quot;*&quot;      &quot;*&quot;     &quot;*&quot;  
+## 7  ( 1 ) &quot; &quot;    &quot;*&quot; &quot;*&quot;      &quot;*&quot;         &quot; &quot;          &quot;*&quot;      &quot;*&quot;     &quot;*&quot;  
+## 8  ( 1 ) &quot; &quot;    &quot;*&quot; &quot;*&quot;      &quot;*&quot;         &quot;*&quot;          &quot;*&quot;      &quot;*&quot;     &quot;*&quot;  
+##          danceability
+## 1  ( 1 ) &quot; &quot;         
+## 2  ( 1 ) &quot; &quot;         
+## 3  ( 1 ) &quot; &quot;         
+## 4  ( 1 ) &quot; &quot;         
+## 5  ( 1 ) &quot;*&quot;         
+## 6  ( 1 ) &quot;*&quot;         
+## 7  ( 1 ) &quot;*&quot;         
+## 8  ( 1 ) &quot;*&quot;</code></pre>
+<pre><code>## [1] 0.05482148 0.06932074 0.08370739 0.09607266 0.09448641 0.10409112 0.09442908
+## [8] 0.08447834</code></pre>

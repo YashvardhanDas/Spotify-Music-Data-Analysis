@@ -1,0 +1,37 @@
+---
+title: Kyras Exploratory Data Analysis
+author: Kyra Dubinsky
+date: '2020-04-13'
+slug: kyra-s-exploratory-data-analysis
+categories: []
+tags: []
+description: 'Kyras Exploratory Data Analysis '
+featured_image: ''
+---
+
+
+
+<p>My group and I wanted to look further into the Top Spotify Tracks of 2018 from this dataset: <a href="https://www.kaggle.com/nadintamer/top-spotify-tracks-of-2018" class="uri">https://www.kaggle.com/nadintamer/top-spotify-tracks-of-2018</a>.</p>
+<p>Some of the more important questions centered around what made a song a successful song in 2018. While we could see simple correlations between a variable like speechiness and presence on the top 2018 spotify tracks (of the tracks on the top 2018 spotify tracks, the least speechy ones were most common):</p>
+<pre><code>## ── Attaching packages ──────────────────────────────────── tidyverse 1.3.0 ──</code></pre>
+<pre><code>## ✓ ggplot2 3.2.1     ✓ purrr   0.3.3
+## ✓ tibble  2.1.3     ✓ dplyr   0.8.3
+## ✓ tidyr   1.0.0     ✓ stringr 1.4.0
+## ✓ readr   1.3.1     ✓ forcats 0.4.0</code></pre>
+<pre><code>## ── Conflicts ─────────────────────────────────────── tidyverse_conflicts() ──
+## x dplyr::filter() masks stats::filter()
+## x dplyr::lag()    masks stats::lag()</code></pre>
+<p><img src="/post/2020-04-13-kyra-s-exploratory-data-analysis_files/figure-html/unnamed-chunk-1-1.png" width="672" />
+Comparing this to 2017, we see the exact same trend:
+<img src="/post/2020-04-13-kyra-s-exploratory-data-analysis_files/figure-html/p1-1.png" width="672" />
+It seemed more important to focus on relationships and trends between varbiables like the effect of speechiness on danceability:</p>
+<p><img src="/post/2020-04-13-kyra-s-exploratory-data-analysis_files/figure-html/p2-1.png" width="672" />
+Again, this trend was common in 2017:
+<img src="/post/2020-04-13-kyra-s-exploratory-data-analysis_files/figure-html/p3-1.png" width="672" />
+Although there seems to be little trend in the range of 0.05-0.15, this range has many more songs in the high danceability range (0.8+) than songs with a speechiness range of 0.2-0.3, and even fewer songs in the high danceability range exist when their speechiness is more than 0.4. Overall, not only does a song’s danceability decrease with increased speechiness, but there’s a notable decrease in song that made the top 2018 on spotify as speechiness increases. The less speechiness, the more likely the song was on the top 2018 list at all.</p>
+<p>I also wanted to look further into defining danceability. What did danceability mean in terms of other musical factors? Obviously, from the plot above, songs that are highly danceable were less speechy. But what about time signature?</p>
+<p><img src="/post/2020-04-13-kyra-s-exploratory-data-analysis_files/figure-html/p4-1.png" width="672" />
+This didn’t really give me the information I was looking for, since 4/4 seemed to be the most common time signature by a lot. So, I couldn’t regard this data in that way, but it did show something else: most songs on the top 2018 tracks were 4/4 instead of 5/4 or a waltzy 3/4.</p>
+<p>Interestingly, in 2017 there weren’t any top songs with a 5/4 time signature like there was in 2018. And, there was only 1 song with a 3/4 time signature. There’s more diversity in time signatures within the top songs in 2018 than there was in 2017.
+<img src="/post/2020-04-13-kyra-s-exploratory-data-analysis_files/figure-html/p5-1.png" width="672" />
+In the future, I’d like to look more into how these trends align with today’s top spotify tracks, once we get the API figured out.</p>

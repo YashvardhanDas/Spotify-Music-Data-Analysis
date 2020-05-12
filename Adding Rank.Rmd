@@ -1,0 +1,21 @@
+---
+title: "Adding Ranking"
+author: "Anto Kechejian"
+date: "4/1/2020"
+output: html_document
+---
+
+```{r}
+
+#Adding a ranking column 
+library(tidyverse)
+top2018 <- read_csv(here::here("dataset", "top2018.csv"))
+top2018_2 <- tibble::rowid_to_column(top2018,"Rank_List")
+
+top2018_2 <-top2018_2 %>% mutate(Rank = as.numeric(unlist(Rank_List)))
+
+top2018_2$Rank_List <- NULL
+
+as.tibble(top2018_2)
+```
+

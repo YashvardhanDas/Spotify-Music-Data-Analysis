@@ -1,0 +1,52 @@
+---
+title: "Exploratory Data Analysis"
+author: "Claudia, Anto, Yash, Kyra"
+date: '2020-04-02'
+description: Preliminary data analysis
+featured_image: ''
+slug: exploratory-data-analysis
+tags: []
+categories: []
+---
+
+In this blog post, we hope to give some preliminary analysis of our Top Spotify Songs of 2018 dataset. 
+```{r, echo = FALSE}
+suppressMessages(source(here::here("load_and_clean_data.R")))
+```
+
+```{r, echo = FALSE}
+#Adding a ranking column 
+top2018_2 <- tibble::rowid_to_column(top2018,"Rank_List")
+
+top2018_2 <-top2018_2 %>% mutate(Rank = as.numeric(unlist(Rank_List)))
+
+top2018_2$Rank_List <- NULL
+```
+
+In the plot below, we are analyzing the correlation between a song's key and danceability. It is seen that the key with the highest mean danceability is C sharp. The key with the lowest mean danceability is F sharp. Among these boxplots are a few outliers. For example, although the key of D appears to have a higher mean danceability, there is one song in this key that has a danceability lower than 0.2, making it one of the least danceable songs in the dataset. 
+
+```{r p1, echo = FALSE}
+top2018 %>% ggplot(aes(x = key, y = danceability, group = key)) + 
+  geom_boxplot(aes(fill = key)) + theme_linedraw()
+```
+In the plot below, we examine the relationship between rank and danceability, grouped by quartile of ranking. Initially, we antcicipated that the most popular songs (the songs in the 1-25 quarter) would have a higher average danceability than the other groups, but that does not seem to be the case. Surprisingly, the boxplot suggests that on average, songs in the lowest quarter of ranking have the highest danceability score, with the top two quarters close behind. These findings could suggest that the danceability of a song does not have a large association with  how often someone listens to a song, or how much they enjoy it. 
+
+```{r p2, echo = FALSE}
+#Creating the boxplot to show the danceability by quarter
+
+#Adding a Quarter variable to group by rankings 
+library(tidyverse)
+
+top2018 <- top2018_2 %>% mutate(Quarter = ifelse(Rank %in%1:25,"Top 25",ifelse(Rank %in% 26:50,"26-50",ifelse(Rank %in% 51:75,"51-75","76-100"))))
+
+library(ggthemes)
+dance_by_quarter_plot <-ggplot(top2018)+geom_boxplot(aes(x=Rank, y =danceability, group=(Quarter), color = Quarter))+ylab("Danceability")+ ggtitle("Danceability by Quarter")+theme_classic()
+dance_by_quarter_plot
+```
+
+
+In the plot below we also wanted to look at the effect of speechiness on danceability. Although there seems to be little trend in the range of 0.05-0.15, this range has many more songs in the high danceability range (0.8+) than songs with a speechiness range of 0.2-0.3, and even fewer songs in the high danceability range exist when their speechiness is more than 0.4. Overall, not only does a song's danceability decrease with increased speechiness, but there's a notable decrease in song that made the top 2018 on spotify as speechiness increases. The less speechiness, the more likely the song was on the top 2018 list at all. 
+
+```{r p3, echo = FALSE}
+top2018 %>% ggplot(aes(x = speechiness, y = danceability)) + geom_point(aes(color = speechiness)) 
+```

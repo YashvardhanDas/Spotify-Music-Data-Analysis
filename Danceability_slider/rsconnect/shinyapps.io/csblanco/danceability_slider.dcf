@@ -1,0 +1,10 @@
+name: danceability_slider
+title:
+username:
+account: csblanco
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 2233790
+bundleId: 3097536
+url: https://csblanco.shinyapps.io/danceability_slider/
+when: 1588525694.84818

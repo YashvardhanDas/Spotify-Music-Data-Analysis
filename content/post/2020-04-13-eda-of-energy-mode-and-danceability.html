@@ -1,0 +1,19 @@
+---
+title: "EDA of Energy, Mode and Danceability"
+author: "Anto Kechejian"
+date: '2020-04-13'
+description: ''
+featured_image: ''
+slug: eda-of-energy-mode-and-danceability
+tags: []
+categories: []
+---
+
+
+
+<p>To further explore the relationship of different variables in the data set with danceability, I decided to take a closer look at energy and mode. Without accounting for mode, the spread of the data points makes it seem as though there is no realtionship present. However, when we include mode as a factor (with 0 indicating the song is written in minor key and 1 indicating major key), a slightly more interesting story reveals itself.</p>
+<p>As we can see in the graph below, for songs with an energy score below 0.4, there appears to be a positive association between energy and danceability for both keys. Between the 0.4 and 0.7 threshold however, this trend continues for songs written in the minor key, but inverts for songs written in the major key. Past the energy level of 0.7, songs written in a minor key seem to exhibit a slightly negative relationship between energy and danceability, while songs in a major key seem to return to a positive association.</p>
+<p>The key takeaway from the visual seems to be that for every level of energy, energy’s relationship with danceability appears to be opposite for the two modes of songs.</p>
+<p>With this finding in mind, it is important to note that given the large spread of the data points, these relationships are likely to be week, and there is generaly more data for songs with higher energy levels.</p>
+<pre><code>## `geom_smooth()` using method = &#39;loess&#39; and formula &#39;y ~ x&#39;</code></pre>
+<p><img src="/post/2020-04-13-eda-of-energy-mode-and-danceability_files/figure-html/unnamed-chunk-2-1.png" width="672" /></p>

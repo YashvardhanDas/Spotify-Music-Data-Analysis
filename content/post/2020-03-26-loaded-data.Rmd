@@ -1,0 +1,19 @@
+---
+title: Loaded Data
+author: Claudia
+date: '2020-03-26'
+slug: loaded-data
+categories: []
+tags: []
+description: 'Data loading'
+featured_image: ''
+---
+We have loaded all of our data and created this preliminary plot of a song's energy versus danceability.
+```{r example, echo = FALSE}
+suppressMessages(source(here::here("load_and_clean_data.R")))
+```
+
+```{r plot, echo = FALSE}
+top2018 %>% ggplot(aes(x = energy, y = danceability)) + 
+  geom_point()
+```

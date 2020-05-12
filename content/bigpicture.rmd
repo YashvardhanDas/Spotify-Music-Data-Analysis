@@ -1,0 +1,83 @@
+---
+title: "THE BIG PICTURE"
+output:
+html_document:
+featured_image: images/spotify1.png
+df_print: paged
+---
+
+## Motivation
+
+At the conclusion of every year, Spotify generates a list of the most top-rated and popular songs over the course of that year. In this project, we are explored the commonality that exists between such songs and the factors based on why people tend to like such kind of songs over others. From a high-level overview, we investigated patterns in the audio features of the songs and tried to develop an inference regarding why do people stream these songs the most.
+
+## Data
+
+Our primary source of getting the relevant data is the website of Kaggle. Kaggle contains multiple datasets and repositories relating to specific information analysis. The data that has been leveraged to make consequent inferences based on predictive modeling and data visualization consists of Spotify's Top Tracks of the year of 2018. The audio features for each song were extracted using the Spotify Web API and the Spotify Python library. Credit goes to Spotify for calculating the audio feature values.
+
+## Exploratory Visualization
+
+Some of the main questions we plan to answer are how genre, liveliness, loudness, energy, tempo, and key affect danceability. We also may look at the top spotify datasets of previous years to analyze the differences in how these variables affect danceability as well.
+
+In the constructed boxplot shown below, we explore the relationship that exist between rank of the song and danceability, grouped by quartile of ranking. Initially, we antcicipated that the most popular songs (the songs in the 1-25 quarter) would have a higher average danceability than the other groups, but that does not seem to be the case. Surprisingly, the boxplot suggests that on average, songs in the lowest quarter of ranking have the highest danceability score, with the top two quarters close behind. These findings could suggest that the danceability of a song does not have a large association with how often someone listens to a song, or how much they enjoy it.
+
+```{r p1,echo=FALSE}
+suppressMessages(source(here::here("load_and_clean_data.R")))
+#Adding a ranking column 
+top2018_2 <- tibble::rowid_to_column(top2018,"Rank_List")
+top2018_2 <-top2018_2 %>% mutate(Rank = as.numeric(unlist(Rank_List)))
+top2018_2$Rank_List <- NULL
+
+#Creating the boxplot to show the danceability by quarter
+#Adding a Quarter variable to group by rankings 
+library(tidyverse)
+top2018 <- top2018_2 %>% mutate(Quarter = ifelse(Rank %in%1:25,"Top 25",ifelse(Rank %in% 26:50,"26-50",ifelse(Rank %in% 51:75,"51-75","76-100"))))
+library(ggthemes)
+dance_by_quarter_plot <-ggplot(top2018)+geom_boxplot(aes(x=Rank, y =danceability, group=(Quarter), color = Quarter))+ylab("Danceability")+ ggtitle("Danceability by Quarter")+theme_clean()
+dance_by_quarter_plot
+```
+
+Next, we explored the factor termed as as “valence”. According to the information available in Kaggle, it is described as “a measure from 0.0 to 1.0 describing the musical positiveness conveyed by a track.” Tracks with high valence sound more positive (e.g. happy, cheerful, euphoric), while tracks with low valence sound more negative (e.g. sad, depressed, angry). Based on the bargraph constructed below, we can observe that most of the songs are of the category Happy which lies in between the extreme categories of Euphoric and Emotional.
+
+```{r p2,echo=FALSE}
+top2018_2$valence[top2018_2$valence > 0.70] <- "Euphoric"
+top2018_2$valence[top2018_2$valence > 0.30 & top2018_2$valence < 0.70] <- "Happy"
+top2018_2$valence[top2018_2$valence < 0.30] <- "Gloomy/Emotional"
+top2018_2$valence <- as.factor(top2018_2$valence)
+ggplot(top2018_2) + geom_bar(aes(valence),fill="springgreen2", color = "black") + xlab("Song categories based on Valence") + ylab("Frequency of Songs") + theme_dark()
+```
+
+To further explore the relationship of different variables in the data set with danceability, we planned to take a closer look at energy and mode. The key takeaway from this visualization seems to be that for every level of energy, energy’s relationship with danceability appears to be opposite for the two modes of songs.
+
+```{r p3, echo=FALSE}
+library(tidyverse)
+library(ggthemes)
+
+#Graphing the relationship between energy and danceability by mode 
+
+ggplot(top2018, aes(energy, danceability, color = as.character(mode))) + geom_point() + geom_smooth(aes(group = mode),se = FALSE)+ xlab("Energy")+ylab("Danceability") + ggtitle("The Relationship between Energy and Danceability by Mode")+ labs(color = "Mode") + theme_clean()
+```
+
+
+## Predictive Modeling
+
+Since most of the factors and variables present in the dataset were fairly independent of one another, we planned to construct a machine learning-based statistical model which could be used to predict the factor of danceability. The independent variables predominantly taken in the model are energy, speechiness, acousticnes, valence, tempo and rank. This statistical modelling consisted of usage of different approaches that include but are not limited to multiple linear regression, forward accumulation and backward elimination.
+
+Based on the correlation matrix constructed and modeling approaches, we find a strong postive correlation between energy and loudness. With the above model we obtained a considerable significant value while predicting the energy of a song using the variables loudness,danceability,acousticness.
+
+## Comparison of Mathematical Modeling for Different Years
+
+The prime motivation for comparing the linear regression-based models for the years of 2017 & 2018 is to get an overall idea regarding some similarity or difference in the rankings of the songs of the corresponding years. If the most optimal model for each respective year is the same or very similar in many aspects, we may be able to use that information to predict the rank of a song for the year of 2019.
+
+Inferential differences in the outputs and statistics of these models eventually don't provide a concrete universal prediction. So, we come to a reasonable conclusion that there might not any one specific type or genre of song that is popular at all times.
+
+## Conclusion
+
+We examined for patterns in the audio features of the songs and based on our analysis, we zero in on the following factors  regarding why do people stream these specific songs the most:-
+
+1.High dancebility.
+
+2.Energetic songs
+
+3.Low Speechiness and low instrumentalness (very less speech in the songs)
+
+4.Low accousticness (more inclusion of electric sounds).

@@ -1,0 +1,26 @@
+---
+title: "Yash's Exploratory Data Analysis"
+author: "Yashvardhan Das"
+date: '2020-04-12'
+description: Yash's Data Visualisations
+featured_image: ''
+slug: exploratory-data-analysis
+tags: []
+categories: []
+output: html_document
+---
+
+
+
+<p>In this blog post, I am going to present my data visualisations and analysis based on my own intuition regarding the dataset of Top Spotify Songs of 2018</p>
+<p>First, I am going to examine the extent of correlation between the factors involved in the dataset which are used in determining the overall performance and popularity of the respective songs and artists. As depicted in the constructed correlation matrix, there are no significant correlations between the different factors.Although, there are a few instances, such as the strong positive relation between loudness and energy, it is safe to assume that most of these factors are independent of each other.</p>
+<pre><code>## corrplot 0.84 loaded</code></pre>
+<p><img src="/post/2020-04-12-Yash-EDA_files/figure-html/p2-1.png" width="672" /></p>
+<p>Next, I am going to explore the factor termed as as “valence”. According to the information available in Kaggle, it is described as “a measure from 0.0 to 1.0 describing the musical positiveness conveyed by a track.” Tracks with high valence sound more positive (e.g. happy, cheerful, euphoric), while tracks with low valence sound more negative (e.g. sad, depressed, angry). I have tried to segregate this factor into 3 categories, namely “Euphoric” (Valence &gt; 0.70), “Happy” (0.30 &lt; Valence &lt; 0.70) and “Gloomy/Emotional” (Valence &lt; 0.30).</p>
+<p>Based on the bargraph constructed below, we can observe that most of the songs are of the category Happy which lies in between the extreme categories of Euphoric and Emotional.</p>
+<p><img src="/post/2020-04-12-Yash-EDA_files/figure-html/p3-1.png" width="672" /></p>
+<p>Now, I focus my intuition towards the factor of Danceability. It describes how apt a song track is regarding dancing. A value of 1 is the most danceable and 0 is the least danceable. From the density graph constructed as follows, we can observe that more songs tend to have higher values for Danceability, meaning a majority of the songs are considered suitable for dancing.</p>
+<p><img src="/post/2020-04-12-Yash-EDA_files/figure-html/p4-1.png" width="672" /></p>
+<p>Now, I shift my focus back to the first part of my analysis - the correlations. Only one significant value (0.73) amongst the factors, which, was between Loudness and Energy. As corroborated from the graph below, these 2 factors have a quite strong and positive linear relationship. As these are not independent of one another, one of these could be dropped from the final regression-based prediction model to maintain independence of predictor variables.</p>
+<pre><code>## `geom_smooth()` using method = &#39;loess&#39; and formula &#39;y ~ x&#39;</code></pre>
+<p><img src="/post/2020-04-12-Yash-EDA_files/figure-html/p5-1.png" width="672" /></p>

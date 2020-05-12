@@ -1,0 +1,362 @@
+---
+title: "Using Linear Modeling to Predict Danceability and Energy"
+author: "Anto, Yash, Claudia, Kyra"
+date: '2020-04-23'
+description: ''
+featured_image: ''
+slug: using-linear-modeling-to-predict-danceability-and-energy
+tags: []
+categories: []
+---
+
+
+
+<p>In this post, we explore the use of linear modeling to predict danceability and energy.</p>
+<p>Let’s start with danceability. For the purpose of this part of the analysis, we will only focus on scalar independent variables.</p>
+<p>Using the method of subset selection (which is selecting all possible models that can be made from combinations of our independent variables) to determine the best linear model for predicting danceability, we can see that model 6 has the highest adjusted R squared. We felt as though it was important to use this metric as an indicator of how good the model is, beacuse it accounts for overfitting by penalizing the value for having more parameters.</p>
+<p>The independent variables in model 6 are energy, speechiness, acousticnes, valence, tempo and Rank, and its adjusted R squared value is .338. This value indicates that even the model with the highest posssible R squared value based on the variables in the data set still does not explain most of the variability in in danceability.</p>
+<pre><code>## Subset selection object
+## Call: regsubsets.formula(danceability ~ energy + key + loudness + speechiness + 
+##     acousticness + liveness + valence + tempo + Rank, data = top2018_2)
+## 9 Variables  (and intercept)
+##              Forced in Forced out
+## energy           FALSE      FALSE
+## key              FALSE      FALSE
+## loudness         FALSE      FALSE
+## speechiness      FALSE      FALSE
+## acousticness     FALSE      FALSE
+## liveness         FALSE      FALSE
+## valence          FALSE      FALSE
+## tempo            FALSE      FALSE
+## Rank             FALSE      FALSE
+## 1 subsets of each size up to 8
+## Selection Algorithm: exhaustive
+##          energy key loudness speechiness acousticness liveness valence tempo
+## 1  ( 1 ) &quot; &quot;    &quot; &quot; &quot; &quot;      &quot; &quot;         &quot; &quot;          &quot; &quot;      &quot;*&quot;     &quot; &quot;  
+## 2  ( 1 ) &quot;*&quot;    &quot; &quot; &quot; &quot;      &quot; &quot;         &quot; &quot;          &quot; &quot;      &quot;*&quot;     &quot; &quot;  
+## 3  ( 1 ) &quot;*&quot;    &quot; &quot; &quot; &quot;      &quot; &quot;         &quot;*&quot;          &quot; &quot;      &quot;*&quot;     &quot; &quot;  
+## 4  ( 1 ) &quot;*&quot;    &quot; &quot; &quot; &quot;      &quot;*&quot;         &quot;*&quot;          &quot; &quot;      &quot;*&quot;     &quot; &quot;  
+## 5  ( 1 ) &quot;*&quot;    &quot; &quot; &quot; &quot;      &quot;*&quot;         &quot;*&quot;          &quot; &quot;      &quot;*&quot;     &quot;*&quot;  
+## 6  ( 1 ) &quot;*&quot;    &quot; &quot; &quot; &quot;      &quot;*&quot;         &quot;*&quot;          &quot; &quot;      &quot;*&quot;     &quot;*&quot;  
+## 7  ( 1 ) &quot;*&quot;    &quot;*&quot; &quot; &quot;      &quot;*&quot;         &quot;*&quot;          &quot; &quot;      &quot;*&quot;     &quot;*&quot;  
+## 8  ( 1 ) &quot;*&quot;    &quot;*&quot; &quot; &quot;      &quot;*&quot;         &quot;*&quot;          &quot;*&quot;      &quot;*&quot;     &quot;*&quot;  
+##          Rank
+## 1  ( 1 ) &quot; &quot; 
+## 2  ( 1 ) &quot; &quot; 
+## 3  ( 1 ) &quot; &quot; 
+## 4  ( 1 ) &quot; &quot; 
+## 5  ( 1 ) &quot; &quot; 
+## 6  ( 1 ) &quot;*&quot; 
+## 7  ( 1 ) &quot;*&quot; 
+## 8  ( 1 ) &quot;*&quot;</code></pre>
+<pre><code>## [1] 0.1628197 0.2178993 0.2825124 0.3180745 0.3361698 0.3379999 0.3350481
+## [8] 0.3327620</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = danceability ~ energy + speechiness + acousticness + 
+##     valence + tempo + Rank, data = top2018_2)
+## 
+## Residuals:
+##      Min       1Q   Median       3Q      Max 
+## -0.33539 -0.06502  0.01188  0.06826  0.21446 
+## 
+## Coefficients:
+##                Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)   0.8734834  0.0788765  11.074  &lt; 2e-16 ***
+## energy       -0.3432563  0.0903267  -3.800 0.000258 ***
+## speechiness   0.2806009  0.1041489   2.694 0.008371 ** 
+## acousticness -0.1666698  0.0550927  -3.025 0.003212 ** 
+## valence       0.3464998  0.0580147   5.973 4.24e-08 ***
+## tempo        -0.0006422  0.0003915  -1.640 0.104319    
+## Rank         -0.0004250  0.0003787  -1.122 0.264566    
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 0.1066 on 93 degrees of freedom
+## Multiple R-squared:  0.3781, Adjusted R-squared:  0.338 
+## F-statistic: 9.424 on 6 and 93 DF,  p-value: 4.508e-08</code></pre>
+<p>While subset selection is one potentially useful method of model building, different methods such as forward accumulation and backwards elimination can produce different models. In this next section, we will focus on the use of these two methods and take a look the different models that they produce. Before we begin, it is important to note that we decided to use AIC penalization for each process, as oposed to BIC penalization which is harsher.</p>
+<p>Let’s start with forward accumulation. This method sequentially selects which variable to include based on their significance in the model.</p>
+<p>As you can see by the output below, this method produces a model that includes valence, energy, accousticness, speechiness and tempo as the independent variables, and has an adjusted R squared of 0.3362.</p>
+<pre><code>## Start:  AIC=-405.41
+## danceability ~ 1
+## 
+##                Df Sum of Sq    RSS     AIC
+## + valence       1  0.291299 1.4095 -422.20
+## + speechiness   1  0.087696 1.6131 -408.70
+## + tempo         1  0.064679 1.6361 -407.29
+## &lt;none&gt;                      1.7008 -405.41
+## + acousticness  1  0.030709 1.6701 -405.23
+## + Rank          1  0.015310 1.6854 -404.31
+## + energy        1  0.008960 1.6918 -403.94
+## + key           1  0.004556 1.6962 -403.68
+## + liveness      1  0.002555 1.6982 -403.56
+## + loudness      1  0.000410 1.7004 -403.43
+## 
+## Step:  AIC=-422.2
+## danceability ~ valence
+## 
+##                Df Sum of Sq    RSS     AIC
+## + energy        1  0.106167 1.3033 -428.03
+## + speechiness   1  0.105049 1.3044 -427.94
+## + loudness      1  0.047900 1.3616 -423.65
+## + tempo         1  0.031034 1.3784 -422.42
+## &lt;none&gt;                      1.4095 -422.20
+## + acousticness  1  0.026913 1.3825 -422.12
+## + Rank          1  0.017040 1.3924 -421.41
+## + key           1  0.002492 1.4070 -420.37
+## + liveness      1  0.000760 1.4087 -420.25
+## 
+## Step:  AIC=-428.03
+## danceability ~ valence + energy
+## 
+##                Df Sum of Sq    RSS     AIC
+## + acousticness  1  0.119997 1.1833 -435.69
+## + speechiness   1  0.093359 1.2099 -433.46
+## &lt;none&gt;                      1.3033 -428.03
+## + Rank          1  0.023867 1.2794 -427.88
+## + tempo         1  0.018190 1.2851 -427.43
+## + key           1  0.008926 1.2944 -426.71
+## + loudness      1  0.000028 1.3033 -426.03
+## + liveness      1  0.000016 1.3033 -426.03
+## 
+## Step:  AIC=-435.69
+## danceability ~ valence + energy + acousticness
+## 
+##               Df Sum of Sq    RSS     AIC
+## + speechiness  1  0.070365 1.1129 -439.82
+## + tempo        1  0.031327 1.1520 -436.37
+## &lt;none&gt;                     1.1833 -435.69
+## + Rank         1  0.020061 1.1632 -435.40
+## + key          1  0.003979 1.1793 -434.02
+## + liveness     1  0.002560 1.1807 -433.90
+## + loudness     1  0.000248 1.1830 -433.71
+## 
+## Step:  AIC=-439.82
+## danceability ~ valence + energy + acousticness + speechiness
+## 
+##            Df Sum of Sq    RSS     AIC
+## + tempo     1  0.040936 1.0720 -441.56
+## + Rank      1  0.024665 1.0883 -440.06
+## &lt;none&gt;                  1.1129 -439.82
+## + loudness  1  0.009481 1.1035 -438.67
+## + key       1  0.004737 1.1082 -438.24
+## + liveness  1  0.000397 1.1125 -437.85
+## 
+## Step:  AIC=-441.56
+## danceability ~ valence + energy + acousticness + speechiness + 
+##     tempo
+## 
+##            Df Sum of Sq    RSS     AIC
+## &lt;none&gt;                  1.0720 -441.56
+## + Rank      1 0.0143282 1.0577 -440.91
+## + loudness  1 0.0073883 1.0646 -440.26
+## + key       1 0.0040466 1.0679 -439.94
+## + liveness  1 0.0022733 1.0697 -439.78</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = danceability ~ valence + energy + acousticness + 
+##     speechiness + tempo, data = top2018)
+## 
+## Residuals:
+##      Min       1Q   Median       3Q      Max 
+## -0.35195 -0.06214  0.00394  0.07547  0.22137 
+## 
+## Coefficients:
+##                Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)   0.8619450  0.0783118  11.007  &lt; 2e-16 ***
+## valence       0.3421848  0.0579672   5.903 5.63e-08 ***
+## energy       -0.3374425  0.0903026  -3.737  0.00032 ***
+## acousticness -0.1707490  0.0550487  -3.102  0.00254 ** 
+## speechiness   0.2759666  0.1042108   2.648  0.00949 ** 
+## tempo        -0.0007284  0.0003844  -1.895  0.06122 .  
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 0.1068 on 94 degrees of freedom
+## Multiple R-squared:  0.3697, Adjusted R-squared:  0.3362 
+## F-statistic: 11.03 on 5 and 94 DF,  p-value: 2.265e-08</code></pre>
+<p>Next, we can utilize the backwards elimination method, which removes variables from a “full” model until only significant ones remain.</p>
+<p>As you can see in the output below, this method gives a model that includes energy, speechiness, accousticness, valance and tempo, and has an adjusted R squared value of 0.3362.</p>
+<p>Incidentally, these two methods produced the same model, which is somewhat rare. Further analysis could include factoring in the qualitative variables in the data set to see if they could lead to significantly more accurate models. For now however, it seems as though subset selection produces the model with the highest adjusted R squared vlaue, and its relatively low value sugests that the quantitative variables in the dataset can not be used to predict danceability very accurately.</p>
+<pre><code>## Start:  AIC=-436.63
+## danceability ~ energy + key + loudness + speechiness + acousticness + 
+##     liveness + valence + tempo + Rank
+## 
+##                Df Sum of Sq    RSS     AIC
+## - loudness      1   0.00348 1.0431 -438.30
+## - liveness      1   0.00653 1.0462 -438.00
+## - key           1   0.00826 1.0479 -437.84
+## - Rank          1   0.01877 1.0584 -436.84
+## &lt;none&gt;                      1.0396 -436.63
+## - tempo         1   0.03048 1.0701 -435.74
+## - speechiness   1   0.08093 1.1206 -431.13
+## - acousticness  1   0.10255 1.1422 -429.22
+## - energy        1   0.12424 1.1639 -427.34
+## - valence       1   0.37105 1.4107 -408.11
+## 
+## Step:  AIC=-438.3
+## danceability ~ energy + key + speechiness + acousticness + liveness + 
+##     valence + tempo + Rank
+## 
+##                Df Sum of Sq    RSS     AIC
+## - liveness      1   0.00785 1.0510 -439.55
+## - key           1   0.00876 1.0519 -439.46
+## &lt;none&gt;                      1.0431 -438.30
+## - Rank          1   0.02186 1.0650 -438.22
+## - tempo         1   0.03138 1.0745 -437.33
+## - speechiness   1   0.07813 1.1212 -433.07
+## - acousticness  1   0.10324 1.1463 -430.86
+## - energy        1   0.17041 1.2135 -425.16
+## - valence       1   0.40068 1.4438 -407.79
+## 
+## Step:  AIC=-439.55
+## danceability ~ energy + key + speechiness + acousticness + valence + 
+##     tempo + Rank
+## 
+##                Df Sum of Sq    RSS     AIC
+## - key           1   0.00671 1.0577 -440.91
+## - Rank          1   0.01699 1.0679 -439.94
+## &lt;none&gt;                      1.0510 -439.55
+## - tempo         1   0.02897 1.0799 -438.83
+## - speechiness   1   0.08369 1.1346 -433.88
+## - acousticness  1   0.09743 1.1484 -432.68
+## - energy        1   0.16885 1.2198 -426.65
+## - valence       1   0.40761 1.4586 -408.77
+## 
+## Step:  AIC=-440.91
+## danceability ~ energy + speechiness + acousticness + valence + 
+##     tempo + Rank
+## 
+##                Df Sum of Sq    RSS     AIC
+## - Rank          1   0.01433 1.0720 -441.56
+## &lt;none&gt;                      1.0577 -440.91
+## - tempo         1   0.03060 1.0883 -440.06
+## - speechiness   1   0.08255 1.1402 -435.39
+## - acousticness  1   0.10409 1.1618 -433.52
+## - energy        1   0.16424 1.2219 -428.48
+## - valence       1   0.40569 1.4634 -410.44
+## 
+## Step:  AIC=-441.56
+## danceability ~ energy + speechiness + acousticness + valence + 
+##     tempo
+## 
+##                Df Sum of Sq    RSS     AIC
+## &lt;none&gt;                      1.0720 -441.56
+## - tempo         1   0.04094 1.1129 -439.82
+## - speechiness   1   0.07997 1.1520 -436.37
+## - acousticness  1   0.10972 1.1817 -433.82
+## - energy        1   0.15924 1.2312 -429.71
+## - valence       1   0.39739 1.4694 -412.03</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = danceability ~ energy + speechiness + acousticness + 
+##     valence + tempo, data = top2018)
+## 
+## Residuals:
+##      Min       1Q   Median       3Q      Max 
+## -0.35195 -0.06214  0.00394  0.07547  0.22137 
+## 
+## Coefficients:
+##                Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)   0.8619450  0.0783118  11.007  &lt; 2e-16 ***
+## energy       -0.3374425  0.0903026  -3.737  0.00032 ***
+## speechiness   0.2759666  0.1042108   2.648  0.00949 ** 
+## acousticness -0.1707490  0.0550487  -3.102  0.00254 ** 
+## valence       0.3421848  0.0579672   5.903 5.63e-08 ***
+## tempo        -0.0007284  0.0003844  -1.895  0.06122 .  
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 0.1068 on 94 degrees of freedom
+## Multiple R-squared:  0.3697, Adjusted R-squared:  0.3362 
+## F-statistic: 11.03 on 5 and 94 DF,  p-value: 2.265e-08</code></pre>
+<pre class="r"><code>suppressMessages(source(here::here(&quot;load_and_clean_data.R&quot;)))</code></pre>
+<p>We will now shift our focus to energy as our dependent variable of interest.</p>
+<pre><code>## 
+## Attaching package: &#39;gridExtra&#39;</code></pre>
+<pre><code>## The following object is masked from &#39;package:dplyr&#39;:
+## 
+##     combine</code></pre>
+<pre><code>## 
+## Attaching package: &#39;MASS&#39;</code></pre>
+<pre><code>## The following object is masked from &#39;package:dplyr&#39;:
+## 
+##     select</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = energy ~ loudness + danceability + acousticness, 
+##     data = train_data)
+## 
+## Coefficients:
+##  (Intercept)      loudness  danceability  acousticness  
+<<<<<<< HEAD
+##      1.11246       0.05539      -0.14066      -0.17014  
+=======
+##       1.1807        0.0555       -0.2245       -0.1858  
+>>>>>>> 448c777d12f7faa39bf5df0b5a4737e87285c273
+## 
+## 
+## ASSESSMENT OF THE LINEAR MODEL ASSUMPTIONS
+## USING THE GLOBAL TEST ON 4 DEGREES-OF-FREEDOM:
+## Level of Significance =  0.05 
+## 
+## Call:
+##  gvlma(x = mlr_model) 
+## 
+<<<<<<< HEAD
+##                       Value p-value                Decision
+## Global Stat        2.114085  0.7148 Assumptions acceptable.
+## Skewness           1.662509  0.1973 Assumptions acceptable.
+## Kurtosis           0.003182  0.9550 Assumptions acceptable.
+## Link Function      0.208429  0.6480 Assumptions acceptable.
+## Heteroscedasticity 0.239965  0.6242 Assumptions acceptable.</code></pre>
+=======
+##                      Value p-value                Decision
+## Global Stat        5.18793 0.26855 Assumptions acceptable.
+## Skewness           1.15026 0.28349 Assumptions acceptable.
+## Kurtosis           0.06385 0.80051 Assumptions acceptable.
+## Link Function      2.81434 0.09343 Assumptions acceptable.
+## Heteroscedasticity 1.15948 0.28157 Assumptions acceptable.</code></pre>
+>>>>>>> 448c777d12f7faa39bf5df0b5a4737e87285c273
+<pre><code>## 
+## Call:
+## lm(formula = energy ~ loudness + danceability + acousticness, 
+##     data = train_data)
+## 
+## Residuals:
+##       Min        1Q    Median        3Q       Max 
+<<<<<<< HEAD
+## -0.256832 -0.063925  0.009054  0.073346  0.252689 
+## 
+## Coefficients:
+##               Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)   1.112461   0.069975  15.898  &lt; 2e-16 ***
+## loudness      0.055385   0.006477   8.551 1.06e-12 ***
+## danceability -0.140661   0.084015  -1.674  0.09825 .  
+## acousticness -0.170142   0.056364  -3.019  0.00347 ** 
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 0.09809 on 75 degrees of freedom
+## Multiple R-squared:  0.5476, Adjusted R-squared:  0.5295 
+## F-statistic: 30.26 on 3 and 75 DF,  p-value: 6.326e-13</code></pre>
+<pre><code>## [1] 0.7725001</code></pre>
+=======
+## -0.217595 -0.055121  0.000396  0.072314  0.235744 
+## 
+## Coefficients:
+##               Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)   1.180687   0.073460  16.073  &lt; 2e-16 ***
+## loudness      0.055503   0.005857   9.476 1.86e-14 ***
+## danceability -0.224483   0.092473  -2.428 0.017600 *  
+## acousticness -0.185845   0.048160  -3.859 0.000239 ***
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 0.09059 on 75 degrees of freedom
+## Multiple R-squared:  0.6594, Adjusted R-squared:  0.6458 
+## F-statistic:  48.4 on 3 and 75 DF,  p-value: &lt; 2.2e-16</code></pre>
+<pre><code>## [1] 0.06833704</code></pre>
+>>>>>>> 448c777d12f7faa39bf5df0b5a4737e87285c273
+<p>With the mlr model created, we have a significant r2 value while predicting the energy level using the factors of loudness, danceability &amp; acousticness. Based on the correlation matrix constructed, this model is in tandem with the strong postive correlation between energy and loudness</p>
